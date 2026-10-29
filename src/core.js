@@ -44,5 +44,5 @@ export function publicSnapshot(state){
  const mainIds=new Set(assignment.filter(a=>a.kind==='Sun King').map(a=>a.key));
  const main=Object.entries(state.records).filter(([k,r])=>mainIds.has(k)&&testClass(r.raw.Test)==='production'&&approved(r.raw)).map(([,r])=>r.raw);
  const analysis=Object.entries(state.dictionary).filter(([f,d])=>/^Q_?\d+(?:_O\d+)?$/.test(f)&&d.verified&&d.private===false&&d.publish===true&&d.type==='single').map(([f,d])=>({label:d.label,question:d.question,section:d.section,...analyse(main,f,d)}));
- return {schema:1,publishedAt:new Date().toISOString(),importedAt:state.imports.at(-1)?.at||null,target:30,approvedProduction:main.length,assignmentAvailable:assignment.length>0,analysis};
+ return {schema:1,publishedAt:new Date().toISOString(),importedAt:state.imports.at(-1)?.at||null,target:90,approvedProduction:main.length,assignmentAvailable:assignment.length>0,analysis};
 }

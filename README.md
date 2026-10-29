@@ -1,5 +1,7 @@
 # Sun King Kenya HPM Reporting
 
+The current release includes a separate 90-visit simulated client dashboard. See CLIENT-LINKS.md for the public demo, protected management link, revised target and simulation definitions. The production import workflow below remains separate from the demonstration.
+
 Built afresh for Rudder Research and Data Analytics Ltd. This is a local-first implementation stage with optional Supabase central persistence. It imports manual SurveyToGo full CSV and single-sheet XLSX exports. It is not live shopper tracking.
 
 ## Local project
