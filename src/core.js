@@ -36,7 +36,27 @@ export function merge(existing,p,allowUpdates=false){if(p.errors.length)throw Er
 export function eligibility(raw,d){if(!d?.verified)return 'unknown';if(!d.routing)return 'eligible';if(!d.routing.verified)return 'unknown';const v=raw[d.routing.field];if(v==null||v==='')return 'unknown';return d.routing.values.map(String).includes(String(v))?'eligible':'ineligible';}
 export function decode(raw,field,d){const v=raw[field];if(eligibility(raw,d)==='ineligible')return {state:'Not applicable',label:'Not applicable (verified routing)'};if(v==null||v==='')return {state:'Not answered',label:'Not answered'};if(!d?.verified)return {state:'Unmapped',label:'Code '+v};if(d.type==='text'||d.type==='time'||d.type==='number')return {state:'Answered',label:String(v)};const label=d.codes?.[String(v)];return label?{state:'Answered',label}:{state:'Unmapped',label:'Code '+v};}
 export function analyse(records,field,d){const all=records.filter(r=>testClass(r.Test)==='production'&&approved(r));const eligible=all.filter(r=>eligibility(r,d)==='eligible');const counts={};let missing=0,unmapped=0;for(const r of eligible){const a=decode(r,field,d);if(a.state==='Not answered')missing++;else if(a.state==='Unmapped')unmapped++;else counts[a.label]=(counts[a.label]||0)+1;}return {eligible:eligible.length,unknownEligibility:all.filter(r=>eligibility(r,d)==='unknown').length,missing,unmapped,counts};}
-export function qc(raw,dict={},timing={}){const flags=[];if(!Object.entries(raw).some(([f,v])=>/^Q_?\d/.test(f)&&v!==''))flags.push('No question answers. Review completion and questionnaire compatibility.');if(!raw.Latitude||!raw.Longitude)flags.push('System location missing. Check question-level GPS if mapped.');for(const [f,d] of Object.entries(dict)){if(d.required&&eligibility(raw,d)==='eligible'&&!raw[f])flags.push('Missing expected answer: '+(d.label||f));}const start=sourceTime(raw[timing.start||'VStart'],raw.UTCDiff),end=sourceTime(raw[timing.end||'VEnd'],raw.UTCDiff);if(start!=null&&end!=null&&end<start)flags.push('Questionnaire completion precedes start');const departure=timing.departure?sourceTime(raw[timing.departure],raw.UTCDiff):null;if(departure!=null&&end!=null&&end-departure>900000)flags.push('Questionnaire completed more than 15 minutes after departure');if(departure!=null&&start!=null&&start<departure)flags.push('Questionnaire started before recorded departure');return flags;}
+export function timingEvents(raw,timing={}){
+ const read=field=>field?sourceTime(raw[field],raw.UTCDiff):null;
+ const coordinate=(field,min,max)=>{if(!field||raw[field]==null||String(raw[field]).trim()==='')return null;const n=Number(raw[field]);return Number.isFinite(n)&&n>=min&&n<=max?n:null;};
+ return {arrival:read(timing.checkin),departure:read(timing.checkout),interviewStart:read(timing.interviewStart||'VStart'),questionnaireStart:read(timing.start),questionnaireEnd:read(timing.end||'VEnd'),upload:read(timing.upload||'Upload'),latitude:coordinate(timing.arrivalLatitude,-90,90),longitude:coordinate(timing.arrivalLongitude,-180,180),accuracy:coordinate(timing.arrivalAccuracy,0,Infinity)};
+}
+export function qc(raw,dict={},timing={}){
+ const flags=[];const events=timingEvents(raw,timing);
+ if(!Object.entries(raw).some(([f,v])=>/^Q_?\d/.test(f)&&v!==''))flags.push('No question answers. Review completion and questionnaire compatibility.');
+ if(timing.arrivalLatitude||timing.arrivalLongitude){if(events.latitude===null||events.longitude===null)flags.push('Captured arrival GPS missing or invalid');}else if(!raw.Latitude||!raw.Longitude)flags.push('System location missing. Arrival GPS is not mapped.');
+ for(const [f,d] of Object.entries(dict)){if(d.required&&eligibility(raw,d)==='eligible'&&!raw[f])flags.push('Missing expected answer: '+(d.label||f));}
+ if(timing.checkin&&events.arrival===null)flags.push('Captured arrival time missing or invalid');
+ if(timing.checkout&&events.departure===null)flags.push('Captured departure time missing or invalid');
+ if(events.arrival!==null&&events.departure!==null&&events.departure<events.arrival)flags.push('Departure precedes arrival');
+ const start=events.questionnaireStart,end=events.questionnaireEnd;
+ if(start!==null&&end!==null&&end<start)flags.push('Questionnaire completion precedes start');
+ const departure=timing.checkout?events.departure:timing.departure?sourceTime(raw[timing.departure],raw.UTCDiff):null;
+ if(departure!==null&&end!==null&&end-departure>900000)flags.push('Questionnaire completed more than 15 minutes after departure');
+ if(departure!==null&&start!==null&&start<departure)flags.push('Questionnaire started before recorded departure');
+ return flags;
+}
+
 export function publicSnapshot(state){
  // All published material is built from an explicit verified, non-private categorical allowlist.
  // Raw interviews, open text, contact fields, notes, timestamps and GPS never enter the payload.

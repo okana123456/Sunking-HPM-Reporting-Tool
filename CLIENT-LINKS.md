@@ -1,16 +1,16 @@
 # Client and management links
 
-The public root and #demo open a read-only, clearly labelled 90-visit simulation without sign-in. #admin opens the existing protected Rudder management area. #report=TOKEN opens a published production snapshot.
+The public root and #demo open a read-only, clearly labelled 90-visit test dataset without sign-in. #admin opens the existing protected Rudder management area. #report=TOKEN opens a published production snapshot.
 
 Local preview: npm run dev. The localhost address only works on this PC. Use the hosted address for Sun King.
 
-## Simulation
+## Test data
 
 90 visits on Saturday 24 October 2026. Five supplied zones, six supplied AHQs each, three formats per AHQ (Shop, Gazebo, Parasol). Fifteen supplied shopper names have six illustrative allocations each. The four supplied username examples are used; other usernames are illustrative and labelled. No assignment, response, QC decision or timestamp describes actual shopper work.
 
 All source demo records have synthetic=true and test=true and use SIM identifiers. They are generated separately in src/demo-data.js and never enter the production workspace. Actual imported SurveyToGo test records are not used to generate findings. Demo variables have DEMO_ prefixes, and no current questionnaire mapping is claimed.
 
-The default analysis sample is simulated Approved records. Only completed interactions are eligible for normal selling questions. Missing and unmapped answers remain in eligible denominators. Coverage and QC intentionally show all selected QC statuses.
+The default analysis sample is test records with an Approved status. Only completed interactions are eligible for normal selling questions. Missing and unmapped answers remain in eligible denominators. Coverage and QC intentionally show all selected QC statuses.
 
 ## Revised project target
 
@@ -22,3 +22,7 @@ This release does not replace the current questionnaire, real assignment mapping
 
 Hosted link (available after successful deployment): https://sun-king-hpm-reporting-demo.whole-dove-2046.chatgpt.site/#demo
 Rudder management: https://sun-king-hpm-reporting-demo.whole-dove-2046.chatgpt.site/#admin
+
+## New SurveyToGo arrival/departure events
+
+Planned sequence: tap I have arrived before approaching (event timestamp and GPS); tap I have left the outlet after leaving (event timestamp); then start the reporting questions. Map the exported question-level event fields after inspecting the revised full export. Do not map yes/no confirmation answers as timestamps. Interview opening VStart may precede the visit, so a separate reporting-section start timestamp is required. Missing captured events remain unavailable and existing test timestamps stay explicitly manual. No SurveyToGo changes were made by this dashboard update.
