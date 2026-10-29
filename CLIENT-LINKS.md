@@ -22,4 +22,3 @@ This release does not replace the current questionnaire, real assignment mapping
 
 Hosted link (available after successful deployment): https://sun-king-hpm-reporting-demo.whole-dove-2046.chatgpt.site/#demo
 Rudder management: https://sun-king-hpm-reporting-demo.whole-dove-2046.chatgpt.site/#admin
-
