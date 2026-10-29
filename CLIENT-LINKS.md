@@ -20,8 +20,8 @@ The user revised the project to 90 visits (30 AHQs x 3 formats). The admin inter
 
 This release does not replace the current questionnaire, real assignment mapping, or Supabase permission and publication checks. Raw responses visible to the public are from the synthetic dataset only. Production clients still receive the restricted published aggregate payload.
 
-Hosted link (available after successful deployment): https://sun-king-hpm-reporting-demo.whole-dove-2046.chatgpt.site/#demo
-Rudder management: https://sun-king-hpm-reporting-demo.whole-dove-2046.chatgpt.site/#admin
+Hosted link (available after successful deployment): https://sunking-hpm-reporting-tool.vercel.app/#client
+Rudder management: https://sunking-hpm-reporting-tool.vercel.app/#admin
 
 ## New SurveyToGo arrival/departure events
 
